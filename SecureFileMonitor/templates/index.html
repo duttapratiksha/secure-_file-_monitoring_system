@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Secure File Transfer Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+  <style>
+    :root, [data-theme="light"] {
+      --color-bg:#f7f6f2;
+      --color-surface:#f9f8f5;
+      --color-surface-2:#fbfbf9;
+      --color-surface-offset:#f3f0ec;
+      --color-border:#d4d1ca;
+      --color-divider:#dcd9d5;
+      --color-text:#28251d;
+      --color-text-muted:#6c6a65;
+      --color-text-faint:#9f9c96;
+      --color-text-inverse:#f9f8f4;
+      --color-primary:#01696f;
+      --color-primary-hover:#0c4e54;
+      --color-primary-highlight:#cedcd8;
+      --color-success:#437a22;
+      --color-warning:#964219;
+      --color-error:#a13544;
+      --shadow-sm:0 1px 2px rgba(22,20,16,.06);
+      --shadow-md:0 10px 24px rgba(22,20,16,.08);
+      --radius-sm:.5rem;
+      --radius-md:.8rem;
+      --radius-lg:1.1rem;
+      --radius-xl:1.4rem;
+      --space-2:.5rem;
+      --space-3:.75rem;
+      --space-4:1rem;
+      --space-6:1.5rem;
+      --space-8:2rem;
+      --space-10:2.5rem;
+      --space-12:3rem;
+      --text-xs:.78rem;
+      --text-sm:.95rem;
+      --text-base:1rem;
+      --text-lg:1.2rem;
+      --text-xl:1.85rem;
+      --font-body:'General Sans', system-ui, sans-serif;
+    }
+
+    [data-theme="dark"] {
+      --color-bg:#171614;
+      --color-surface:#1c1b19;
+      --color-surface-2:#201f1d;
+      --color-surface-offset:#23211f;
+      --color-border:#393836;
+      --color-divider:#262523;
+      --color-text:#e4e0d8;
+      --color-text-muted:#aaa69d;
+      --color-text-faint:#7b776f;
+      --color-text-inverse:#171614;
+      --color-primary:#4f98a3;
+      --color-primary-hover:#67aeb8;
+      --color-primary-highlight:#2b3537;
+      --color-success:#83ba63;
+      --color-warning:#db8c54;
+      --color-error:#e27a86;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.24);
+      --shadow-md:0 12px 28px rgba(0,0,0,.35);
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0}
+    body{
+      font-family:var(--font-body);
+      background:var(--color-bg);
+      color:var(--color-text);
+      line-height:1.5;
+    }
+    button,input,select,textarea{font:inherit}
+    a{text-decoration:none;color:inherit}
+
+    .app{
+      display:grid;
+      grid-template-columns:280px 1fr;
+      min-height:100vh;
+    }
+
+    .sidebar{
+      background:var(--color-surface);
+      border-right:1px solid var(--color-border);
+      padding:var(--space-8) var(--space-6);
+      position:sticky;
+      top:0;
+      height:100vh;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:.9rem;
+      margin-bottom:2.2rem;
+    }
+
+    .logo{
+      width:42px;
+      height:42px;
+      border-radius:14px;
+      background:linear-gradient(135deg,var(--color-primary-highlight),var(--color-surface-offset));
+      display:grid;
+      place-items:center;
+      border:1px solid var(--color-border);
+    }
+
+    .brand h1{font-size:1rem;margin:0}
+    .brand p{margin:.15rem 0 0;color:var(--color-text-muted);font-size:var(--text-xs)}
+
+    .nav{display:grid;gap:.5rem}
+    .nav a{
+      padding:.85rem 1rem;
+      border-radius:var(--radius-md);
+      color:var(--color-text-muted);
+    }
+    .nav a.active,
+    .nav a:hover{
+      background:var(--color-surface-offset);
+      color:var(--color-text);
+    }
+
+    .sidebar-card{
+      margin-top:2rem;
+      padding:1rem;
+      border-radius:var(--radius-lg);
+      background:var(--color-surface-offset);
+      border:1px solid var(--color-border);
+    }
+
+    .sidebar-card h3{margin:0 0 .4rem;font-size:var(--text-sm)}
+    .sidebar-card p{margin:0 0 .8rem;color:var(--color-text-muted);font-size:var(--text-xs)}
+
+    .main{padding:var(--space-8)}
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      gap:1rem;
+      align-items:center;
+      margin-bottom:1.5rem;
+    }
+
+    .title h2{
+      margin:0;
+      font-size:clamp(1.6rem,2vw,2.2rem);
+    }
+    .title p{margin:.35rem 0 0;color:var(--color-text-muted)}
+
+    .actions{
+      display:flex;
+      gap:.75rem;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      border:1px solid var(--color-border);
+      background:var(--color-surface);
+      padding:.8rem 1rem;
+      border-radius:999px;
+      cursor:pointer;
+      color:var(--color-text);
+    }
+    .btn.primary{
+      background:var(--color-primary);
+      color:var(--color-text-inverse);
+      border-color:transparent;
+    }
+    .btn.primary:hover{background:var(--color-primary-hover)}
+
+    .grid{display:grid;gap:1rem}
+    .kpis{
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      margin-bottom:1rem;
+    }
+
+    .card{
+      background:var(--color-surface);
+      border:1px solid var(--color-border);
+      border-radius:var(--radius-xl);
+      box-shadow:var(--shadow-sm);
+    }
+
+    .metric{padding:1.25rem}
+    .metric small{
+      display:block;
+      color:var(--color-text-muted);
+      margin-bottom:.6rem;
+    }
+    .metric strong{font-size:1.9rem}
+    .delta{
+      font-size:var(--text-xs);
+      margin-top:.6rem;
+      display:inline-flex;
+      padding:.25rem .55rem;
+      border-radius:999px;
+      background:var(--color-surface-offset);
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns:1.4fr .9fr;
+      gap:1rem;
+      margin-bottom:1rem;
+    }
+
+    .panel{padding:1.25rem}
+    .panel h3{margin:0 0 .25rem;font-size:1.05rem}
+    .panel p{margin:0 0 1rem;color:var(--color-text-muted);font-size:var(--text-sm)}
+
+    .chart{
+      height:260px;
+      display:flex;
+      align-items:end;
+      gap:.8rem;
+      padding-top:1rem;
+    }
+
+    .bar-wrap{
+      flex:1;
+      display:grid;
+      gap:.5rem;
+      justify-items:center;
+    }
+
+    .bar{
+      width:100%;
+      max-width:58px;
+      border-radius:14px 14px 6px 6px;
+      background:linear-gradient(180deg,var(--color-primary),var(--color-primary-hover));
+      min-height:20px;
+    }
+
+    .bar.secondary{
+      background:linear-gradient(180deg,#6da7b0,#3d7179);
+    }
+
+    .bar-label{
+      font-size:var(--text-xs);
+      color:var(--color-text-muted);
+    }
+
+    .legend{
+      display:flex;
+      gap:1rem;
+      flex-wrap:wrap;
+      font-size:var(--text-xs);
+      color:var(--color-text-muted);
+    }
+
+    .dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      display:inline-block;
+      margin-right:.35rem;
+      vertical-align:middle;
+    }
+
+    .status-list{display:grid;gap:.8rem}
+    .status-item{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:.9rem 0;
+      border-bottom:1px solid var(--color-divider);
+    }
+    .status-item:last-child{border-bottom:0}
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:.35rem;
+      padding:.35rem .65rem;
+      border-radius:999px;
+      font-size:var(--text-xs);
+      background:var(--color-surface-offset);
+    }
+    .pill.success{color:var(--color-success)}
+    .pill.warn{color:var(--color-warning)}
+    .pill.error{color:var(--color-error)}
+
+    .table-wrap{overflow:auto}
+    .table{
+      width:100%;
+      border-collapse:collapse;
+    }
+    .table th,
+    .table td{
+      padding:.9rem .8rem;
+      text-align:left;
+      border-bottom:1px solid var(--color-divider);
+      font-size:var(--text-sm);
+    }
+    .table th{
+      color:var(--color-text-muted);
+      font-weight:600;
+    }
+
+    .tag{
+      padding:.25rem .55rem;
+      border-radius:999px;
+      background:var(--color-primary-highlight);
+      color:var(--color-primary);
+      font-size:var(--text-xs);
+      display:inline-block;
+    }
+
+    .split{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:1rem;
+    }
+
+    .config{padding:1.25rem}
+
+    .field{
+      display:grid;
+      gap:.45rem;
+      margin-bottom:.9rem;
+    }
+    .field label{
+      font-size:var(--text-xs);
+      color:var(--color-text-muted);
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+    .field input,
+    .field select,
+    .field textarea{
+      background:var(--color-surface-2);
+      border:1px solid var(--color-border);
+      border-radius:.9rem;
+      padding:.85rem 1rem;
+      color:var(--color-text);
+    }
+
+    .hint{
+      font-size:var(--text-xs);
+      color:var(--color-text-muted);
+    }
+
+    .footer-note{
+      margin-top:1rem;
+      color:var(--color-text-muted);
+      font-size:var(--text-xs);
+    }
+
+    .mobile-nav{display:none}
+
+    @media (max-width: 980px){
+      .app{grid-template-columns:1fr}
+      .sidebar{display:none}
+      .layout,
+      .split,
+      .kpis{grid-template-columns:1fr}
+      .main{padding:1rem}
+      .mobile-nav{
+        display:flex;
+        position:sticky;
+        bottom:0;
+        background:var(--color-surface);
+        border-top:1px solid var(--color-border);
+        justify-content:space-around;
+        padding:.7rem;
+        z-index:10;
+      }
+      .topbar{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo" aria-label="Secure transfer logo">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path d="M12 3l7 4v5c0 4.5-2.8 7.8-7 9-4.2-1.2-7-4.5-7-9V7l7-4Z"></path>
+            <path d="M9.3 12.3 11 14l3.8-4.2"></path>
+          </svg>
+        </div>
+        <div>
+          <h1>Secure Transfer</h1>
+          <p>Monitoring & integrity console</p>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="Primary navigation">
+        <a class="active" href="#overview">Overview</a>
+        <a href="#activity">Activity Log</a>
+        <a href="#policies">Policies</a>
+        <a href="#config">Monitoring Setup</a>
+      </nav>
+
+      <div class="sidebar-card">
+        <h3>Requirements mapped</h3>
+        <p>Designed for Python plus watchdog, hashlib, optional psutil, and Windows-focused folder monitoring workflows.</p>
+        <span class="tag">Desktop-ready prototype</span>
+      </div>
+    </aside>
+
+    <main class="main" id="overview">
+      <div class="topbar">
+        <div class="title">
+          <h2>Secure file transfer monitoring dashboard</h2>
+          <p>Prototype UI for monitoring watched folders, hashing sensitive files, verifying integrity, and reviewing transfer events in one place.</p>
+        </div>
+        <div class="actions">
+          <button class="btn" data-theme-toggle aria-label="Switch theme">Theme</button>
+          <button class="btn">Export audit</button>
+          <button class="btn primary">Start monitor</button>
+        </div>
+      </div>
+
+      <section class="grid kpis" aria-label="Key metrics">
+        <article class="card metric">
+          <small>Total transfers today</small>
+          <strong>1,284</strong>
+          <div class="delta">+12.4% vs yesterday</div>
+        </article>
+        <article class="card metric">
+          <small>Integrity mismatches</small>
+          <strong>07</strong>
+          <div class="delta">Critical review needed</div>
+        </article>
+        <article class="card metric">
+          <small>Sensitive files tracked</small>
+          <strong>326</strong>
+          <div class="delta">SHA-256 baseline active</div>
+        </article>
+        <article class="card metric">
+          <small>Watcher uptime</small>
+          <strong>18h</strong>
+          <div class="delta">Observer healthy</div>
+        </article>
+      </section>
+
+      <section class="layout">
+        <article class="card panel">
+          <h3>Transfer activity</h3>
+          <p>Daily split between completed and flagged transfers. This is the kind of visibility you need for secure file movement and anomaly review.</p>
+          <div class="legend">
+            <span><span class="dot" style="background:var(--color-primary)"></span>Successful</span>
+            <span><span class="dot" style="background:#6da7b0"></span>Flagged</span>
+          </div>
+          <div class="chart" aria-label="Transfer bar chart">
+            <div class="bar-wrap"><div class="bar" style="height:62%"></div><div class="bar secondary" style="height:18%"></div><div class="bar-label">Mon</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:74%"></div><div class="bar secondary" style="height:22%"></div><div class="bar-label">Tue</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:68%"></div><div class="bar secondary" style="height:16%"></div><div class="bar-label">Wed</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:83%"></div><div class="bar secondary" style="height:27%"></div><div class="bar-label">Thu</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:58%"></div><div class="bar secondary" style="height:12%"></div><div class="bar-label">Fri</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:49%"></div><div class="bar secondary" style="height:10%"></div><div class="bar-label">Sat</div></div>
+          </div>
+        </article>
+
+        <article class="card panel">
+          <h3>Live protection status</h3>
+          <p>Quick view of the control areas that support secure transfer and monitoring.</p>
+          <div class="status-list">
+            <div class="status-item"><span>Folder watcher</span><span class="pill success">Running</span></div>
+            <div class="status-item"><span>Hash verification</span><span class="pill success">SHA-256 active</span></div>
+            <div class="status-item"><span>Process tracking</span><span class="pill warn">psutil optional</span></div>
+            <div class="status-item"><span>Windows endpoint mode</span><span class="pill success">PowerShell compatible</span></div>
+            <div class="status-item"><span>Suspicious rename burst</span><span class="pill error">2 alerts</span></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="card panel" id="activity">
+        <h3>Recent transfer activity</h3>
+        <p>Each event record can represent what a Python backend would capture from watchdog, plus integrity and policy decisions.</p>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Action</th>
+                <th>File</th>
+                <th>User / Process</th>
+                <th>Integrity</th>
+                <th>Sensitivity</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>20:08</td>
+                <td>Created</td>
+                <td>finance_q4.xlsx</td>
+                <td>powershell.exe</td>
+                <td><span class="pill success">Baseline saved</span></td>
+                <td><span class="tag">Sensitive</span></td>
+              </tr>
+              <tr>
+                <td>20:10</td>
+                <td>Modified</td>
+                <td>client_contract.pdf</td>
+                <td>python monitor.py</td>
+                <td><span class="pill warn">Hash changed</span></td>
+                <td><span class="tag">Sensitive</span></td>
+              </tr>
+              <tr>
+                <td>20:12</td>
+                <td>Moved</td>
+                <td>archive.zip → outbound</td>
+                <td>explorer.exe</td>
+                <td><span class="pill success">Verified</span></td>
+                <td><span class="tag">Normal</span></td>
+              </tr>
+              <tr>
+                <td>20:14</td>
+                <td>Deleted</td>
+                <td>salary_sheet.csv</td>
+                <td>unknown</td>
+                <td><span class="pill error">Review required</span></td>
+                <td><span class="tag">Sensitive</span></td>
+              </tr>
+              <tr>
+                <td>20:16</td>
+                <td>Created</td>
+                <td>hashes.json</td>
+                <td>python integrity.py</td>
+                <td><span class="pill success">System file</span></td>
+                <td><span class="tag">Internal</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="split" id="policies" style="margin-top:1rem; margin-bottom:1rem;">
+        <article class="card panel">
+          <h3>Sensitive file policy</h3>
+          <p>Model the exact requirements by classifying files using extension rules, name-based keywords, and directory scope.</p>
+          <div class="status-list">
+            <div class="status-item"><span>.pdf, .docx, .xlsx, .csv</span><span class="pill success">Watched</span></div>
+            <div class="status-item"><span>Keywords: secret, salary, confidential</span><span class="pill success">Enabled</span></div>
+            <div class="status-item"><span>Unexpected delete or move</span><span class="pill error">Alert</span></div>
+            <div class="status-item"><span>Hash mismatch on protected file</span><span class="pill error">Escalate</span></div>
+          </div>
+        </article>
+
+        <article class="card panel">
+          <h3>Backend mapping</h3>
+          <p>This frontend is structured so each card maps directly to the technologies in your assignment.</p>
+          <div class="status-list">
+            <div class="status-item"><span>watchdog</span><span class="pill success">Filesystem events</span></div>
+            <div class="status-item"><span>hashlib</span><span class="pill success">Integrity hash</span></div>
+            <div class="status-item"><span>psutil</span><span class="pill warn">Process details</span></div>
+            <div class="status-item"><span>PowerShell / win32api</span><span class="pill success">Windows support</span></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="split" id="config">
+        <article class="card config">
+          <h3 style="margin-top:0;">Monitoring setup</h3>
+          <div class="field"><label>Watched directory</label><input value="C:\\SFTMSTest" /></div>
+          <div class="field"><label>Recursive monitoring</label><select><option selected>Enabled</option><option>Disabled</option></select></div>
+          <div class="field"><label>Hash algorithm</label><select><option selected>SHA-256</option><option>SHA-512</option></select></div>
+          <div class="field"><label>Alert mode</label><select><option selected>Console + CSV</option><option>Email</option><option>Webhook</option></select></div>
+          <div class="hint">This section is designed as a frontend control panel for a Python-based watcher service.</div>
+        </article>
+
+        <article class="card config">
+          <h3 style="margin-top:0;">Policy editor</h3>
+          <div class="field"><label>Sensitive extensions</label><input value=".pdf, .docx, .xlsx, .csv, .env, .key" /></div>
+          <div class="field"><label>Filename keywords</label><input value="secret, confidential, password, salary, private" /></div>
+          <div class="field"><label>Alert notes</label><textarea rows="6">Trigger an alert if a protected file is deleted, moved to an outbound folder, or its hash changes without approval.</textarea></div>
+          <button class="btn primary">Save rule set</button>
+        </article>
+      </section>
+
+      <p class="footer-note">
+        This is a frontend prototype website. To make it fully functional, connect it to a Python backend that emits watchdog events, calculates hashes with hashlib, optionally tracks process info with psutil, and feeds logs into the dashboard.
+      </p>
+    </main>
+  </div>
+
+  <nav class="mobile-nav" aria-label="Mobile navigation">
+    <a href="#overview">Overview</a>
+    <a href="#activity">Activity</a>
+    <a href="#policies">Policies</a>
+    <a href="#config">Setup</a>
+  </nav>
+
+  <script>
+    (function(){
+      const button = document.querySelector('[data-theme-toggle]');
+      const root = document.documentElement;
+      let mode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      root.setAttribute('data-theme', mode);
+
+      function updateLabel(){
+        button.textContent = mode === 'dark' ? 'Light mode' : 'Dark mode';
+      }
+
+      updateLabel();
+
+      button.addEventListener('click', () => {
+        mode = mode === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', mode);
+        updateLabel();
+      });
+    })();
+  </script>
+</body>
+</html>  make this render deployble
